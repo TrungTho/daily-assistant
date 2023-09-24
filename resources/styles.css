@@ -1,3 +1,11 @@
+* {
+    font-family: "Comic Sans MS", "Comic Sans", cursive;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+}
+
 html,
 body {
     margin: 0px;
@@ -15,14 +23,20 @@ body {
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#0355f4", endColorstr="#0fd6ff", GradientType=1);
 }
 
-#neutralinoapp h1 {
-    position: relative;
-    float: left;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-family: Arial;
-    font-size: 48px;
-    padding: 0px;
-    margin: 0px;
+.container,
+.countdown-timer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    flex-direction: column;
+}
+
+.countdown-timer p {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+#timer-display {
+    font-size: 70px;
+    color: rgba(255, 255, 255, 0.7);
 }
