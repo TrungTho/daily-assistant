@@ -1,6 +1,7 @@
-const DEFAULT_COUNTDOWN_DURATION = 900; //15 minutes
+const DEFAULT_COUNTDOWN_DURATION = 5; //15 minutes
 let timer = DEFAULT_COUNTDOWN_DURATION;
 const notificationSound = new Audio("./sounds/notification-sound.wav")
+const waterVoice = new Audio("./sounds/water-voice.mp3")
 
 const startCountdown = async () => {
 
@@ -31,6 +32,7 @@ const displayCountdownTimer = async () => {
 
 const showWaterNotification = async () => {
     await notificationSound.play();
+    await waterVoice.play();
     await Neutralino.os.showNotification('Water', 'Drink some water please!!!');
 }
 
