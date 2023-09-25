@@ -1,13 +1,13 @@
-const DEFAULT_COUNTDOWN_DURATION = 5; //15 minutes
-let timer = DEFAULT_COUNTDOWN_DURATION;
+const DEFAULT_COUNTDOWN_DURATION = 900; //15 minutes
+let currTime = new Date()
+let finishTime = new Date(currTime.getTime() + 1000 * DEFAULT_COUNTDOWN_DURATION);
 const notificationSound = new Audio("./sounds/notification-sound.wav")
 const waterVoice = new Audio("./sounds/water-voice.mp3")
 
 const startCountdown = async () => {
-
     setInterval(async () => {
         await displayCountdownTimer();
-    }, 1000);
+    }, 900);
 }
 
 const timeFormatter = async (timeInSeconds) => {
@@ -20,14 +20,15 @@ const timeFormatter = async (timeInSeconds) => {
 }
 
 const displayCountdownTimer = async () => {
-    timer -= 1;
-    const formattedTime = await timeFormatter(timer);
-    document.getElementById('timer-display').innerText = `${formattedTime}`;
-
-    if (timer < 1) {
+    const currTime = new Date();
+    if (currTime >= finishTime) {
         await showWaterNotification()
-        timer = DEFAULT_COUNTDOWN_DURATION + 1;
+        finishTime = new Date(currTime.getTime() + 1000 * (DEFAULT_COUNTDOWN_DURATION));
     }
+
+    const duration = (finishTime - currTime) / 1000;
+    const formattedTime = await timeFormatter(duration);
+    document.getElementById('timer-display').innerText = `${formattedTime}`;
 }
 
 const showWaterNotification = async () => {
