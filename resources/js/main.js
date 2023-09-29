@@ -1,16 +1,24 @@
-const DEFAULT_COUNTDOWN_DURATION = 900; //15 minutes
-let currTime = new Date()
-let finishTime = new Date(currTime.getTime() + 1000 * DEFAULT_COUNTDOWN_DURATION);
-const notificationSound = new Audio("./sounds/notification-sound.wav")
-const waterVoice = new Audio("./sounds/water-voice.mp3")
+const DEFAULT_COUNTDOWN_DURATION = 30; //30 seconds
+const getFinishedTime = (preTime = new Date())  => new Date(preTime.getTime() + 1000 * DEFAULT_COUNTDOWN_DURATION)
+let finishTime = getFinishedTime();
 
-const startCountdown = async () => {
-    setInterval(async () => {
-        await displayCountdownTimer();
-    }, 900);
+const initAudio = src => {
+    const audio = new Audio(src)
+    audio.muted = true;
+    audio.autoplay = false;
+    return audio;
+}
+const notificationSound = initAudio('./sounds/notification-sound.wav');
+const waterVoice = initAudio('sounds/water-voice.mp3')
+const timerDisplayElm = document.getElementById('timer-display')
+
+const startCountdown = () => {
+    setInterval(() => {
+        displayCountdownTimer();
+    }, 500); // 0.5 second interval
 }
 
-const timeFormatter = async (timeInSeconds) => {
+const timeFormatter = (timeInSeconds) => {
     const date = new Date(timeInSeconds * 1000);
     if (timeInSeconds < 3600) {
         return date.toISOString().substring(14, 19);
@@ -19,23 +27,46 @@ const timeFormatter = async (timeInSeconds) => {
     return date.toISOString().substring(11, 19);
 }
 
-const displayCountdownTimer = async () => {
+const displayCountdownTimer = () => {
     const currTime = new Date();
     if (currTime >= finishTime) {
-        await showWaterNotification()
-        finishTime = new Date(currTime.getTime() + 1000 * (DEFAULT_COUNTDOWN_DURATION));
+        showWaterNotification(currTime)
+        finishTime = getFinishedTime(finishTime);
     }
 
     const duration = (finishTime - currTime) / 1000;
-    const formattedTime = await timeFormatter(duration);
-    document.getElementById('timer-display').innerText = `${formattedTime}`;
+    const formattedTime = timeFormatter(duration);
+    timerDisplayElm.innerText = `${formattedTime}`;
 }
 
-const showWaterNotification = async () => {
-    await notificationSound.play();
-    await waterVoice.play();
-    await Neutralino.os.showNotification('Water', 'Drink some water please!!!');
+const showWaterNotification = (currTime) => {
+    Neutralino.debug.log(`${currTime.toISOString()}: Notification shown`);        
+    playAudio(notificationSound).then(() => playAudio(waterVoice)).then(() => Neutralino.debug.log(`${currTime.toISOString()}: Audio Finished`))
+    Neutralino.os.showNotification('Water', 'Drink some water please!!!');
 }
 
-Neutralino.init();
-startCountdown();
+const waitAudioToLoad = (audio) => new Promise((resolve) => {
+    audio.addEventListener("canplaythrough", resolve, {
+        once: true
+    })
+})
+
+const playAudio = async (audio) => {
+    audio.muted = false;
+    await new Promise((resolve) => {
+        audio.addEventListener("ended", resolve, {
+            once: true
+        })
+        audio.play()
+    })
+    audio.pause()
+    audio.muted = true;
+};
+
+Promise.all([
+    waitAudioToLoad(notificationSound),
+    waitAudioToLoad(waterVoice)
+]).then(() => {
+    Neutralino.init();
+    startCountdown();
+})
